@@ -161,6 +161,9 @@ var mouseDragging = false;
 var cameraMode = "third";
 var cameraYaw = 180;
 var language = "zh";
+var bgmAudio = null;
+var bgmVolume = 0.42;
+var volumeSlider, volumeValueEl, volumeLabelEl;
 var TEXT = {
     en: {
         title: "Sky Crystal Escape",
@@ -196,6 +199,8 @@ var TEXT = {
         hazardFeedback: "Hazard hit",
         laserFeedback: "Laser hit",
         floorFeedback: "Danger floor",
+        audio: "Audio",
+        audioValue: "BGM starts after pressing Start",
         timeOut: "Time ran out",
         hpZero: "HP reached 0",
         portalOpened: "The mirror portal opened"
@@ -234,6 +239,8 @@ var TEXT = {
         hazardFeedback: "撞到障礙",
         laserFeedback: "碰到雷射",
         floorFeedback: "踩到危險地板",
+        audio: "音樂",
+        audioValue: "按開始後播放背景音樂",
         timeOut: "時間歸零",
         hpZero: "生命歸零",
         portalOpened: "鏡面傳送門已開啟"
@@ -310,6 +317,9 @@ async function main() {
     hudEl = document.getElementById("hud");
     messageEl = document.getElementById("message");
     flashEl = document.getElementById("damageFlash");
+    volumeSlider = document.getElementById("volumeSlider");
+    volumeValueEl = document.getElementById("volumeValue");
+    volumeLabelEl = document.getElementById("volumeLabel");
     gl = canvas.getContext("webgl2");
     if (!gl) {
         alert("This project needs WebGL2.");
@@ -347,6 +357,7 @@ async function main() {
     canvas.onmouseleave = function () { mouseDragging = false; };
     document.onkeydown = keyDown;
     document.onkeyup = keyUp;
+    setupVolumeControl();
     messageEl.onclick = function () {
         if (game.state === "start") {
             startGame();
@@ -672,6 +683,7 @@ function checkPortal() {
 
 function endGame(won, detail) {
     var t = text();
+    stopBgm();
     game.state = won ? "won" : "lost";
     messageEl.style.display = "grid";
     messageEl.innerHTML =
@@ -715,6 +727,7 @@ function startGame() {
     game.state = "playing";
     gameStartedAt = performance.now();
     messageEl.style.display = "none";
+    startBgm();
 }
 
 function restartGame() {
@@ -743,6 +756,7 @@ function showStartScreen() {
         "<div class='item'>" + t.camera + "<br>" + t.cameraValue + "</div>" +
         "<div class='item'>" + t.view + "<br>" + t.viewValue + "</div>" +
         "<div class='item'>" + t.danger + "<br>" + t.dangerValue + "</div>" +
+        "<div class='item'>" + t.audio + "<br>" + t.audioValue + "</div>" +
         "</div>" +
         "<p class='prompt'>" + t.startPrompt + "</p>" +
         "</div>";
@@ -780,10 +794,53 @@ function text() {
 
 function setLanguage(nextLanguage) {
     language = nextLanguage;
+    updateVolumeUi();
     if (game.state === "start") {
         showStartScreen();
     } else {
         updateHud();
+    }
+}
+
+function setupVolumeControl() {
+    if (!volumeSlider) return;
+    volumeSlider.value = Math.round(bgmVolume * 100);
+    updateVolumeUi();
+    volumeSlider.addEventListener("input", function () {
+        bgmVolume = Number(volumeSlider.value) / 100;
+        if (bgmAudio) {
+            bgmAudio.volume = bgmVolume;
+        }
+        updateVolumeUi();
+    });
+}
+
+function updateVolumeUi() {
+    if (volumeLabelEl) {
+        volumeLabelEl.textContent = language === "zh" ? "音量" : "Volume";
+    }
+    if (volumeValueEl) {
+        volumeValueEl.textContent = Math.round(bgmVolume * 100) + "%";
+    }
+}
+
+function startBgm() {
+    if (!bgmAudio) {
+        bgmAudio = new Audio("Robin_Hustin.mp3");
+        bgmAudio.loop = true;
+    }
+    bgmAudio.volume = bgmVolume;
+    bgmAudio.currentTime = 0;
+    var playPromise = bgmAudio.play();
+    if (playPromise && playPromise.catch) {
+        playPromise.catch(function () {});
+    }
+}
+
+function stopBgm() {
+    if (bgmAudio) {
+        bgmAudio.pause();
+        bgmAudio.currentTime = 0;
     }
 }
 

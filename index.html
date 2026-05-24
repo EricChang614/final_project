@@ -49,6 +49,30 @@
             line-height: 1.5;
             pointer-events: none;
         }
+        .audio-control {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            width: 230px;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            color: #ffffff;
+            background: rgba(13, 17, 23, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .audio-control label {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .audio-control input {
+            width: 100%;
+            accent-color: #8bd7ff;
+        }
         .message {
             position: absolute;
             inset: 0;
@@ -140,6 +164,13 @@
             Please use a browser that supports canvas.
         </canvas>
         <div id="hud" class="hud"></div>
+        <div class="audio-control">
+            <label for="volumeSlider">
+                <span id="volumeLabel">Volume</span>
+                <span id="volumeValue">42%</span>
+            </label>
+            <input id="volumeSlider" type="range" min="0" max="100" value="42" />
+        </div>
         <div id="message" class="message"></div>
         <div id="damageFlash" class="flash"></div>
     </main>
