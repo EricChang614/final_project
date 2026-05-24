@@ -305,13 +305,13 @@ var jumpBarriers = [
 ];
 var floorHazards = [];
 
-async function main(){
+async function main() {
     canvas = document.getElementById("webgl");
     hudEl = document.getElementById("hud");
     messageEl = document.getElementById("message");
     flashEl = document.getElementById("damageFlash");
     gl = canvas.getContext("webgl2");
-    if(!gl){
+    if (!gl) {
         alert("This project needs WebGL2.");
         return;
     }
@@ -344,11 +344,11 @@ async function main(){
     canvas.onmousedown = mouseDown;
     canvas.onmousemove = mouseMove;
     canvas.onmouseup = mouseUp;
-    canvas.onmouseleave = function(){ mouseDragging = false; };
+    canvas.onmouseleave = function () { mouseDragging = false; };
     document.onkeydown = keyDown;
     document.onkeyup = keyUp;
-    messageEl.onclick = function(){
-        if(game.state === "start"){
+    messageEl.onclick = function () {
+        if (game.state === "start") {
             startGame();
         }
     };
@@ -356,7 +356,7 @@ async function main(){
     requestAnimationFrame(tick);
 }
 
-function setupLitProgramLocations(){
+function setupLitProgramLocations() {
     litProgram.a_Position = gl.getAttribLocation(litProgram, "a_Position");
     litProgram.a_Normal = gl.getAttribLocation(litProgram, "a_Normal");
     litProgram.a_TexCoord = gl.getAttribLocation(litProgram, "a_TexCoord");
@@ -377,7 +377,7 @@ function setupLitProgramLocations(){
     litProgram.u_ShadowMap = gl.getUniformLocation(litProgram, "u_ShadowMap");
 }
 
-function setupReflectProgramLocations(){
+function setupReflectProgramLocations() {
     reflectProgram.a_Position = gl.getAttribLocation(reflectProgram, "a_Position");
     reflectProgram.a_Normal = gl.getAttribLocation(reflectProgram, "a_Normal");
     reflectProgram.u_MvpMatrix = gl.getUniformLocation(reflectProgram, "u_MvpMatrix");
@@ -388,13 +388,13 @@ function setupReflectProgramLocations(){
     reflectProgram.u_envCubeMap = gl.getUniformLocation(reflectProgram, "u_envCubeMap");
 }
 
-function setupEnvProgramLocations(){
+function setupEnvProgramLocations() {
     envProgram.a_Position = gl.getAttribLocation(envProgram, "a_Position");
     envProgram.u_envCubeMap = gl.getUniformLocation(envProgram, "u_envCubeMap");
     envProgram.u_viewDirectionProjectionInverse = gl.getUniformLocation(envProgram, "u_viewDirectionProjectionInverse");
 }
 
-function tick(now){
+function tick(now) {
     resizeCanvasToDisplaySize();
     var dt = Math.min((now - lastTime) / 1000, 0.04);
     lastTime = now;
@@ -403,13 +403,13 @@ function tick(now){
     requestAnimationFrame(tick);
 }
 
-function updateGame(dt, now){
+function updateGame(dt, now) {
     rotateAngle += dt * 70;
-    if(game.state === "start"){
+    if (game.state === "start") {
         updateHud();
         return;
     }
-    if(game.state !== "playing"){
+    if (game.state !== "playing") {
         updateHud();
         return;
     }
@@ -417,7 +417,7 @@ function updateGame(dt, now){
     game.timeLeft = Math.max(0, game.totalTime - (now - gameStartedAt) / 1000);
     player.invincible = Math.max(0, player.invincible - dt);
     game.messageTimer = Math.max(0, game.messageTimer - dt);
-    if(game.messageTimer <= 0){
+    if (game.messageTimer <= 0) {
         game.feedback = "";
     }
 
@@ -430,46 +430,46 @@ function updateGame(dt, now){
     checkFloorHazards();
     checkPortal();
 
-    if(game.timeLeft <= 0){
+    if (game.timeLeft <= 0) {
         endGame(false, text().timeOut);
     }
     updateHud();
 }
 
-function getFloorHazardState(tile){
+function getFloorHazardState(tile) {
     var cycle = 4.8;
     var t = (performance.now() * 0.001 + tile.phase) % cycle;
-    if(t < 1.9){
+    if (t < 1.9) {
         return "safe";
     }
-    if(t < 3.15){
+    if (t < 3.15) {
         return "warning";
     }
     return "danger";
 }
 
-function updateFloorHazards(){
+function updateFloorHazards() {
     var cycle = 4.8;
     var now = performance.now() * 0.001;
-    for(var i = 0; i < floorHazards.length; i++){
+    for (var i = 0; i < floorHazards.length; i++) {
         var tile = floorHazards[i];
         var cycleIndex = Math.floor((now + tile.phase) / cycle);
         var stateTime = (now + tile.phase) % cycle;
-        if(tile.cycleIndex !== cycleIndex && stateTime < 0.25){
+        if (tile.cycleIndex !== cycleIndex && stateTime < 0.25) {
             relocateFloorHazard(tile);
             tile.cycleIndex = cycleIndex;
         }
     }
 }
 
-function randomizeFloorHazards(){
+function randomizeFloorHazards() {
     floorHazards = [];
     var count = 7;
     var lanes = [-1.45, 0, 1.45];
     var minZ = -38;
     var maxZ = 34;
     var segment = (maxZ - minZ) / count;
-    for(var i = 0; i < count; i++){
+    for (var i = 0; i < count; i++) {
         var tile = {
             segmentIndex: i,
             zMin: minZ + segment * i + 1.0,
@@ -482,7 +482,7 @@ function randomizeFloorHazards(){
     }
 }
 
-function relocateFloorHazard(tile){
+function relocateFloorHazard(tile) {
     var lanes = [-1.45, 0, 1.45];
     var lane = lanes[Math.floor(Math.random() * lanes.length)];
     tile.x = lane;
@@ -491,34 +491,34 @@ function relocateFloorHazard(tile){
     tile.sz = randomRange(1.35, 1.9);
 }
 
-function updateJump(dt){
-    if((keys[" "] || keys["space"]) && player.grounded){
+function updateJump(dt) {
+    if ((keys[" "] || keys["space"]) && player.grounded) {
         player.verticalSpeed = 5.6;
         player.grounded = false;
     }
     player.verticalSpeed -= 13.5 * dt;
     player.y += player.verticalSpeed * dt;
-    if(player.y <= 0){
+    if (player.y <= 0) {
         player.y = 0;
         player.verticalSpeed = 0;
         player.grounded = true;
     }
 }
 
-function movePlayer(dt){
+function movePlayer(dt) {
     var speed = 4.2;
     var forward = getFlatForward();
     var right = [-forward[2], 0, forward[0]];
     var dx = 0;
     var dz = 0;
 
-    if(keys["w"] || keys["arrowup"]){ dx += forward[0]; dz += forward[2]; }
-    if(keys["s"] || keys["arrowdown"]){ dx -= forward[0]; dz -= forward[2]; }
-    if(keys["d"] || keys["arrowright"]){ dx += right[0]; dz += right[2]; }
-    if(keys["a"] || keys["arrowleft"]){ dx -= right[0]; dz -= right[2]; }
+    if (keys["w"] || keys["arrowup"]) { dx += forward[0]; dz += forward[2]; }
+    if (keys["s"] || keys["arrowdown"]) { dx -= forward[0]; dz -= forward[2]; }
+    if (keys["d"] || keys["arrowright"]) { dx += right[0]; dz += right[2]; }
+    if (keys["a"] || keys["arrowleft"]) { dx -= right[0]; dz -= right[2]; }
 
     var len = Math.sqrt(dx * dx + dz * dz);
-    if(len > 0){
+    if (len > 0) {
         dx /= len;
         dz /= len;
         player.x += dx * speed * dt;
@@ -533,55 +533,55 @@ function movePlayer(dt){
     player.z = clamp(player.z, -arenaLength + 0.1, arenaLength - 0.1);
 }
 
-function pushOutOfBlockers(){
-    for(var i = 0; i < blockers.length; i++){
+function pushOutOfBlockers() {
+    for (var i = 0; i < blockers.length; i++) {
         var b = blockers[i];
         var halfX = b.sx + player.radius;
         var halfZ = b.sz + player.radius;
         var dx = player.x - b.x;
         var dz = player.z - b.z;
-        if(Math.abs(dx) < halfX && Math.abs(dz) < halfZ){
+        if (Math.abs(dx) < halfX && Math.abs(dz) < halfZ) {
             var pushX = halfX - Math.abs(dx);
             var pushZ = halfZ - Math.abs(dz);
-            if(pushX < pushZ){
+            if (pushX < pushZ) {
                 player.x += dx < 0 ? -pushX : pushX;
-            }else{
+            } else {
                 player.z += dz < 0 ? -pushZ : pushZ;
             }
         }
     }
 }
 
-function pushOutOfJumpBarriers(){
-    if(player.y > 0.5){
+function pushOutOfJumpBarriers() {
+    if (player.y > 0.5) {
         return;
     }
-    for(var i = 0; i < jumpBarriers.length; i++){
+    for (var i = 0; i < jumpBarriers.length; i++) {
         var b = jumpBarriers[i];
         var effectiveHalfWidth = Math.max(b.sx, arenaWidth + 0.06);
         var halfX = effectiveHalfWidth + player.radius;
         var halfZ = b.sz + player.radius;
         var dx = player.x - b.x;
         var dz = player.z - b.z;
-        if(Math.abs(dx) < halfX && Math.abs(dz) < halfZ){
+        if (Math.abs(dx) < halfX && Math.abs(dz) < halfZ) {
             var pushX = halfX - Math.abs(dx);
             var pushZ = halfZ - Math.abs(dz);
-            if(pushX < pushZ){
+            if (pushX < pushZ) {
                 player.x += dx < 0 ? -pushX : pushX;
-            }else{
+            } else {
                 player.z += dz < 0 ? -pushZ : pushZ;
             }
         }
     }
 }
 
-function checkCrystalCollection(){
-    for(var i = 0; i < crystals.length; i++){
+function checkCrystalCollection() {
+    for (var i = 0; i < crystals.length; i++) {
         var c = crystals[i];
-        if(c.collected){
+        if (c.collected) {
             continue;
         }
-        if(distance2D(player.x, player.z, c.x, c.z) < 0.62){
+        if (distance2D(player.x, player.z, c.x, c.z) < 0.62) {
             c.collected = true;
             game.collected += 1;
             game.feedback = text().collectFeedback;
@@ -590,21 +590,21 @@ function checkCrystalCollection(){
     }
 }
 
-function checkHazards(){
-    if(player.invincible > 0){
+function checkHazards() {
+    if (player.invincible > 0) {
         return;
     }
-    for(var i = 0; i < hazards.length; i++){
+    for (var i = 0; i < hazards.length; i++) {
         var h = hazards[i];
-        if(Math.abs(player.x - h.x) < h.sx + player.radius &&
-           Math.abs(player.z - h.z) < h.sz + player.radius){
+        if (Math.abs(player.x - h.x) < h.sx + player.radius &&
+            Math.abs(player.z - h.z) < h.sz + player.radius) {
             player.hp -= 1;
             player.invincible = 1.2;
             game.feedback = text().hazardFeedback;
             game.messageTimer = 1.0;
             flashEl.style.opacity = "1";
-            setTimeout(function(){ flashEl.style.opacity = "0"; }, 100);
-            if(player.hp <= 0){
+            setTimeout(function () { flashEl.style.opacity = "0"; }, 100);
+            if (player.hp <= 0) {
                 endGame(false, text().hpZero);
             }
             return;
@@ -612,23 +612,23 @@ function checkHazards(){
     }
 }
 
-function checkMovingHazards(){
-    if(player.invincible > 0){
+function checkMovingHazards() {
+    if (player.invincible > 0) {
         return;
     }
-    for(var i = 0; i < movingHazards.length; i++){
+    for (var i = 0; i < movingHazards.length; i++) {
         var h = getMovingHazardPosition(movingHazards[i]);
         var hitHorizontally =
             Math.abs(player.x - h.x) < movingHazards[i].sx * 0.72 &&
             Math.abs(player.z - h.z) < movingHazards[i].sz * 0.55;
-        if(hitHorizontally && player.y < 0.72){
+        if (hitHorizontally && player.y < 0.72) {
             player.hp -= 1;
             player.invincible = 1.2;
             game.feedback = text().laserFeedback;
             game.messageTimer = 1.0;
             flashEl.style.opacity = "1";
-            setTimeout(function(){ flashEl.style.opacity = "0"; }, 100);
-            if(player.hp <= 0){
+            setTimeout(function () { flashEl.style.opacity = "0"; }, 100);
+            if (player.hp <= 0) {
                 endGame(false, text().hpZero);
             }
             return;
@@ -636,24 +636,24 @@ function checkMovingHazards(){
     }
 }
 
-function checkFloorHazards(){
-    if(player.invincible > 0 || player.y > 0.18){
+function checkFloorHazards() {
+    if (player.invincible > 0 || player.y > 0.18) {
         return;
     }
-    for(var i = 0; i < floorHazards.length; i++){
+    for (var i = 0; i < floorHazards.length; i++) {
         var tile = floorHazards[i];
-        if(getFloorHazardState(tile) !== "danger"){
+        if (getFloorHazardState(tile) !== "danger") {
             continue;
         }
-        if(Math.abs(player.x - tile.x) < tile.sx * 0.96 &&
-           Math.abs(player.z - tile.z) < tile.sz * 0.96){
+        if (Math.abs(player.x - tile.x) < tile.sx * 0.96 &&
+            Math.abs(player.z - tile.z) < tile.sz * 0.96) {
             player.hp -= 1;
             player.invincible = 1.2;
             game.feedback = text().floorFeedback;
             game.messageTimer = 1.0;
             flashEl.style.opacity = "1";
-            setTimeout(function(){ flashEl.style.opacity = "0"; }, 100);
-            if(player.hp <= 0){
+            setTimeout(function () { flashEl.style.opacity = "0"; }, 100);
+            if (player.hp <= 0) {
                 endGame(false, text().hpZero);
             }
             return;
@@ -661,16 +661,16 @@ function checkFloorHazards(){
     }
 }
 
-function checkPortal(){
-    if(game.collected < crystals.length){
+function checkPortal() {
+    if (game.collected < crystals.length) {
         return;
     }
-    if(distance2D(player.x, player.z, portal.x, portal.z) < portal.radius + player.radius){
+    if (distance2D(player.x, player.z, portal.x, portal.z) < portal.radius + player.radius) {
         endGame(true, text().portalOpened);
     }
 }
 
-function endGame(won, detail){
+function endGame(won, detail) {
     var t = text();
     game.state = won ? "won" : "lost";
     messageEl.style.display = "grid";
@@ -688,7 +688,7 @@ function endGame(won, detail){
         "</div>";
 }
 
-function resetGameState(){
+function resetGameState() {
     player.x = 0;
     player.z = startZ;
     player.yaw = 180;
@@ -705,27 +705,27 @@ function resetGameState(){
     game.feedback = "";
     game.messageTimer = 0;
     randomizeFloorHazards();
-    for(var i = 0; i < crystals.length; i++){
+    for (var i = 0; i < crystals.length; i++) {
         crystals[i].collected = false;
     }
 }
 
-function startGame(){
+function startGame() {
     resetGameState();
     game.state = "playing";
     gameStartedAt = performance.now();
     messageEl.style.display = "none";
 }
 
-function restartGame(){
-    if(game.state === "start"){
+function restartGame() {
+    if (game.state === "start") {
         startGame();
         return;
     }
     startGame();
 }
 
-function showStartScreen(){
+function showStartScreen() {
     var t = text();
     updateHud();
     messageEl.style.display = "grid";
@@ -746,19 +746,19 @@ function showStartScreen(){
         "</div>" +
         "<p class='prompt'>" + t.startPrompt + "</p>" +
         "</div>";
-    document.getElementById("langZh").onclick = function(ev){
+    document.getElementById("langZh").onclick = function (ev) {
         ev.stopPropagation();
         setLanguage("zh");
     };
-    document.getElementById("langEn").onclick = function(ev){
+    document.getElementById("langEn").onclick = function (ev) {
         ev.stopPropagation();
         setLanguage("en");
     };
 }
 
-function updateHud(){
+function updateHud() {
     var t = text();
-    if(game.state === "start"){
+    if (game.state === "start") {
         hudEl.innerHTML =
             t.objective + crystals.length + t.crystalsWord + "<br>" +
             t.avoid + "<br>" +
@@ -774,20 +774,20 @@ function updateHud(){
         (game.feedback ? "<br>" + game.feedback : "");
 }
 
-function text(){
+function text() {
     return TEXT[language];
 }
 
-function setLanguage(nextLanguage){
+function setLanguage(nextLanguage) {
     language = nextLanguage;
-    if(game.state === "start"){
+    if (game.state === "start") {
         showStartScreen();
-    }else{
+    } else {
         updateHud();
     }
 }
 
-function draw(){
+function draw() {
     var camera = getCamera();
     var aspect = canvas.width / canvas.height;
     var vp = makeViewProjection(camera, aspect, 60, 0.1, 100);
@@ -804,7 +804,7 @@ function draw(){
     renderScene(vp, camera, lightVP, true, true);
 }
 
-function renderShadowMap(lightVP){
+function renderShadowMap(lightVP) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFbo);
     gl.viewport(0, 0, shadowSize, shadowSize);
     gl.clearColor(1, 1, 1, 1);
@@ -814,7 +814,7 @@ function renderShadowMap(lightVP){
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
-function renderDynamicCubemap(){
+function renderDynamicCubemap() {
     var dirs = [
         [1, 0, 0], [-1, 0, 0], [0, 1, 0],
         [0, -1, 0], [0, 0, 1], [0, 0, -1]
@@ -828,7 +828,7 @@ function renderDynamicCubemap(){
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, dynamicCubeFbo);
     gl.viewport(0, 0, cubeSize, cubeSize);
-    for(var i = 0; i < 6; i++){
+    for (var i = 0; i < 6; i++) {
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
             gl.COLOR_ATTACHMENT0,
@@ -851,7 +851,7 @@ function renderDynamicCubemap(){
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
-function renderScene(vp, camera, lightVP, includeReflection, useShadow){
+function renderScene(vp, camera, lightVP, includeReflection, useShadow) {
     drawGround(vp, camera, lightVP, useShadow);
     drawFloorHazards(vp, camera, lightVP, useShadow);
     drawArenaWalls(vp, camera, lightVP, useShadow);
@@ -860,44 +860,44 @@ function renderScene(vp, camera, lightVP, includeReflection, useShadow){
     drawCrystals(vp, camera, lightVP, useShadow);
     drawHazards(vp, camera, lightVP, useShadow);
     drawPortalBase(vp, camera, lightVP, useShadow);
-    if(includeReflection){
+    if (includeReflection) {
         drawReflectivePortal(vp, camera);
     }
 }
 
-function drawSceneObjectsForShadow(lightVP){
+function drawSceneObjectsForShadow(lightVP) {
     drawShadowObject(groundObj, makeGroundMatrix(), lightVP);
-    for(var w = 0; w < 4; w++){
+    for (var w = 0; w < 4; w++) {
         drawShadowObject(cubeObj, makeWallMatrix(w), lightVP);
     }
-    for(var b = 0; b < blockers.length; b++){
+    for (var b = 0; b < blockers.length; b++) {
         drawShadowObject(cubeObj, makeBlockerMatrix(blockers[b]), lightVP);
     }
-    for(var jb = 0; jb < jumpBarriers.length; jb++){
+    for (var jb = 0; jb < jumpBarriers.length; jb++) {
         drawShadowObject(cubeObj, makeJumpBarrierMatrix(jumpBarriers[jb]), lightVP);
     }
-    for(var fh = 0; fh < floorHazards.length; fh++){
-        if(getFloorHazardState(floorHazards[fh]) !== "safe"){
+    for (var fh = 0; fh < floorHazards.length; fh++) {
+        if (getFloorHazardState(floorHazards[fh]) !== "safe") {
             drawShadowObject(cubeObj, makeFloorHazardMatrix(floorHazards[fh]), lightVP);
         }
     }
     drawShadowObject(playerObj, makePlayerMatrix(), lightVP);
-    for(var i = 0; i < crystals.length; i++){
-        if(!crystals[i].collected){
+    for (var i = 0; i < crystals.length; i++) {
+        if (!crystals[i].collected) {
             drawShadowObject(sphereObj, makeCrystalMatrix(crystals[i]), lightVP);
         }
     }
-    for(var h = 0; h < hazards.length; h++){
+    for (var h = 0; h < hazards.length; h++) {
         drawShadowObject(cubeObj, makeHazardMatrix(hazards[h]), lightVP);
     }
-    for(var mh = 0; mh < movingHazards.length; mh++){
+    for (var mh = 0; mh < movingHazards.length; mh++) {
         drawShadowObject(cubeObj, makeMovingHazardMatrix(movingHazards[mh]), lightVP);
     }
     drawShadowObject(cubeObj, makePortalBaseMatrix(), lightVP);
     drawShadowObject(sphereObj, makePortalSphereMatrix(), lightVP);
 }
 
-function drawGround(vp, camera, lightVP, useShadow){
+function drawGround(vp, camera, lightVP, useShadow) {
     drawLitObject(groundObj, makeGroundMatrix(), vp, camera, lightVP, {
         color: [0.82, 0.95, 1.0],
         ka: 0.22, kd: 0.78, ks: 0.2, shininess: 14,
@@ -906,7 +906,7 @@ function drawGround(vp, camera, lightVP, useShadow){
     });
 }
 
-function drawPlayer(vp, camera, lightVP, useShadow){
+function drawPlayer(vp, camera, lightVP, useShadow) {
     var blink = player.invincible > 0 && Math.floor(player.invincible * 12) % 2 === 0;
     drawLitObject(playerObj, makePlayerMatrix(), vp, camera, lightVP, {
         color: blink ? [1.0, 0.35, 0.35] : [0.25, 0.55, 1.0],
@@ -915,11 +915,11 @@ function drawPlayer(vp, camera, lightVP, useShadow){
     });
 }
 
-function drawFloorHazards(vp, camera, lightVP, useShadow){
-    for(var i = 0; i < floorHazards.length; i++){
+function drawFloorHazards(vp, camera, lightVP, useShadow) {
+    for (var i = 0; i < floorHazards.length; i++) {
         var tile = floorHazards[i];
         var state = getFloorHazardState(tile);
-        if(state === "safe"){
+        if (state === "safe") {
             continue;
         }
         var pulse = 0.5 + 0.5 * Math.sin(performance.now() * 0.012 + tile.phase);
@@ -935,8 +935,8 @@ function drawFloorHazards(vp, camera, lightVP, useShadow){
     }
 }
 
-function drawArenaWalls(vp, camera, lightVP, useShadow){
-    for(var i = 0; i < 4; i++){
+function drawArenaWalls(vp, camera, lightVP, useShadow) {
+    for (var i = 0; i < 4; i++) {
         drawLitObject(cubeObj, makeWallMatrix(i), vp, camera, lightVP, {
             color: [0.18, 0.35, 0.5],
             ka: 0.25, kd: 0.68, ks: 0.35, shininess: 20,
@@ -945,15 +945,15 @@ function drawArenaWalls(vp, camera, lightVP, useShadow){
     }
 }
 
-function drawBlockers(vp, camera, lightVP, useShadow){
-    for(var i = 0; i < blockers.length; i++){
+function drawBlockers(vp, camera, lightVP, useShadow) {
+    for (var i = 0; i < blockers.length; i++) {
         drawLitObject(cubeObj, makeBlockerMatrix(blockers[i]), vp, camera, lightVP, {
             color: [0.22, 0.48, 0.62],
             ka: 0.22, kd: 0.7, ks: 0.32, shininess: 18,
             useShadow: useShadow
         });
     }
-    for(var b = 0; b < jumpBarriers.length; b++){
+    for (var b = 0; b < jumpBarriers.length; b++) {
         drawLitObject(cubeObj, makeJumpBarrierMatrix(jumpBarriers[b]), vp, camera, lightVP, {
             color: [0.25, 1.0, 0.85],
             ka: 0.34, kd: 0.64, ks: 0.8, shininess: 34,
@@ -962,10 +962,10 @@ function drawBlockers(vp, camera, lightVP, useShadow){
     }
 }
 
-function drawCrystals(vp, camera, lightVP, useShadow){
-    for(var i = 0; i < crystals.length; i++){
+function drawCrystals(vp, camera, lightVP, useShadow) {
+    for (var i = 0; i < crystals.length; i++) {
         var c = crystals[i];
-        if(c.collected){
+        if (c.collected) {
             continue;
         }
         drawLitObject(sphereObj, makeCrystalMatrix(c), vp, camera, lightVP, {
@@ -976,15 +976,15 @@ function drawCrystals(vp, camera, lightVP, useShadow){
     }
 }
 
-function drawHazards(vp, camera, lightVP, useShadow){
-    for(var i = 0; i < hazards.length; i++){
+function drawHazards(vp, camera, lightVP, useShadow) {
+    for (var i = 0; i < hazards.length; i++) {
         drawLitObject(cubeObj, makeHazardMatrix(hazards[i]), vp, camera, lightVP, {
             color: [1.0, 0.16, 0.18],
             ka: 0.24, kd: 0.68, ks: 0.7, shininess: 24,
             useShadow: useShadow
         });
     }
-    for(var h = 0; h < movingHazards.length; h++){
+    for (var h = 0; h < movingHazards.length; h++) {
         drawLitObject(cubeObj, makeMovingHazardMatrix(movingHazards[h]), vp, camera, lightVP, {
             color: [1.0, 0.05, 0.18],
             ka: 0.68, kd: 0.8, ks: 1.0, shininess: 48,
@@ -993,7 +993,7 @@ function drawHazards(vp, camera, lightVP, useShadow){
     }
 }
 
-function drawPortalBase(vp, camera, lightVP, useShadow){
+function drawPortalBase(vp, camera, lightVP, useShadow) {
     drawLitObject(cubeObj, makePortalBaseMatrix(), vp, camera, lightVP, {
         color: game.collected === crystals.length ? [0.6, 1.0, 0.9] : [0.28, 0.38, 0.55],
         ka: 0.25, kd: 0.64, ks: 0.8, shininess: 30,
@@ -1001,7 +1001,7 @@ function drawPortalBase(vp, camera, lightVP, useShadow){
     });
 }
 
-function drawReflectivePortal(vp, camera){
+function drawReflectivePortal(vp, camera) {
     gl.useProgram(reflectProgram);
     var model = makePortalSphereMatrix();
     var mvp = new Matrix4(vp);
@@ -1021,7 +1021,7 @@ function drawReflectivePortal(vp, camera){
     drawObjectBuffers(reflectProgram, sphereObj, false);
 }
 
-function drawLitObject(obj, model, vp, camera, lightVP, material){
+function drawLitObject(obj, model, vp, camera, lightVP, material) {
     gl.useProgram(litProgram);
     var mvp = new Matrix4(vp);
     var normal = new Matrix4();
@@ -1047,38 +1047,38 @@ function drawLitObject(obj, model, vp, camera, lightVP, material){
     gl.bindTexture(gl.TEXTURE_2D, shadowFbo.texture);
     gl.uniform1i(litProgram.u_ShadowMap, 1);
 
-    if(material.texture){
+    if (material.texture) {
         gl.uniform1i(litProgram.u_useTexture, 1);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, material.texture);
         gl.uniform1i(litProgram.u_Sampler, 0);
-    }else{
+    } else {
         gl.uniform1i(litProgram.u_useTexture, 0);
     }
 
     drawObjectBuffers(litProgram, obj, true);
 }
 
-function drawShadowObject(obj, model, lightVP){
+function drawShadowObject(obj, model, lightVP) {
     var mvp = new Matrix4(lightVP);
     mvp.multiply(model);
     gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, mvp.elements);
-    for(var i = 0; i < obj.length; i++){
+    for (var i = 0; i < obj.length; i++) {
         initAttributeVariable(gl, shadowProgram.a_Position, obj[i].vertexBuffer);
         gl.drawArrays(gl.TRIANGLES, 0, obj[i].numVertices);
     }
 }
 
-function drawObjectBuffers(program, obj, needsTexcoord){
-    for(var i = 0; i < obj.length; i++){
+function drawObjectBuffers(program, obj, needsTexcoord) {
+    for (var i = 0; i < obj.length; i++) {
         initAttributeVariable(gl, program.a_Position, obj[i].vertexBuffer);
-        if(program.a_Normal >= 0 && obj[i].normalBuffer){
+        if (program.a_Normal >= 0 && obj[i].normalBuffer) {
             initAttributeVariable(gl, program.a_Normal, obj[i].normalBuffer);
         }
-        if(needsTexcoord && program.a_TexCoord >= 0){
-            if(obj[i].texCoordBuffer){
+        if (needsTexcoord && program.a_TexCoord >= 0) {
+            if (obj[i].texCoordBuffer) {
                 initAttributeVariable(gl, program.a_TexCoord, obj[i].texCoordBuffer);
-            }else{
+            } else {
                 gl.disableVertexAttribArray(program.a_TexCoord);
                 gl.vertexAttrib2f(program.a_TexCoord, 0, 0);
             }
@@ -1087,7 +1087,7 @@ function drawObjectBuffers(program, obj, needsTexcoord){
     }
 }
 
-function drawSkyboxFromCamera(camera, aspect, fov){
+function drawSkyboxFromCamera(camera, aspect, fov) {
     drawSkyboxFromDirection(
         [camera.lx - camera.x, camera.ly - camera.y, camera.lz - camera.z],
         [0, 1, 0],
@@ -1096,7 +1096,7 @@ function drawSkyboxFromCamera(camera, aspect, fov){
     );
 }
 
-function drawSkyboxFromDirection(direction, up, aspect, fov){
+function drawSkyboxFromDirection(direction, up, aspect, fov) {
     var projection = new Matrix4();
     var viewRotation = new Matrix4();
     var vp = new Matrix4();
@@ -1119,39 +1119,39 @@ function drawSkyboxFromDirection(direction, up, aspect, fov){
     gl.depthFunc(gl.LESS);
 }
 
-function makeGroundMatrix(){
+function makeGroundMatrix() {
     var m = new Matrix4();
     m.setIdentity();
     return m;
 }
 
-function makeWallMatrix(index){
+function makeWallMatrix(index) {
     var m = new Matrix4();
     var wallHeight = 1.25;
-    if(index === 0){
+    if (index === 0) {
         m.setTranslate(0, wallHeight * 0.5, -arenaLength - 0.2);
         m.scale(arenaWidth * 2 + 0.8, wallHeight, 0.28);
-    }else if(index === 1){
+    } else if (index === 1) {
         m.setTranslate(0, wallHeight * 0.5, arenaLength + 0.2);
         m.scale(arenaWidth * 2 + 0.8, wallHeight, 0.28);
-    }else if(index === 2){
+    } else if (index === 2) {
         m.setTranslate(-arenaWidth - 0.2, wallHeight * 0.5, 0);
         m.scale(0.28, wallHeight, arenaLength * 2 + 0.8);
-    }else{
+    } else {
         m.setTranslate(arenaWidth + 0.2, wallHeight * 0.5, 0);
         m.scale(0.28, wallHeight, arenaLength * 2 + 0.8);
     }
     return m;
 }
 
-function makeBlockerMatrix(b){
+function makeBlockerMatrix(b) {
     var m = new Matrix4();
     m.setTranslate(b.x, 0.42, b.z);
     m.scale(b.sx, 0.84, b.sz);
     return m;
 }
 
-function makeJumpBarrierMatrix(b){
+function makeJumpBarrierMatrix(b) {
     var m = new Matrix4();
     m.setTranslate(b.x, 0.24, b.z);
     var effectiveHalfWidth = Math.max(b.sx, arenaWidth + 0.06);
@@ -1159,14 +1159,14 @@ function makeJumpBarrierMatrix(b){
     return m;
 }
 
-function makeFloorHazardMatrix(tile){
+function makeFloorHazardMatrix(tile) {
     var m = new Matrix4();
     m.setTranslate(tile.x, 0.018, tile.z);
     m.scale(tile.sx, 0.018, tile.sz);
     return m;
 }
 
-function makePlayerMatrix(){
+function makePlayerMatrix() {
     var m = new Matrix4();
     m.setTranslate(player.x, 0.05 + player.y, player.z);
     m.rotate(player.yaw, 0, 1, 0);
@@ -1174,7 +1174,7 @@ function makePlayerMatrix(){
     return m;
 }
 
-function makeCrystalMatrix(c){
+function makeCrystalMatrix(c) {
     var m = new Matrix4();
     m.setTranslate(c.x, c.y + Math.sin(rotateAngle * Math.PI / 90) * 0.08, c.z);
     m.rotate(rotateAngle * 1.8, 0, 1, 0);
@@ -1182,7 +1182,7 @@ function makeCrystalMatrix(c){
     return m;
 }
 
-function makeHazardMatrix(h){
+function makeHazardMatrix(h) {
     var m = new Matrix4();
     m.setTranslate(h.x, 0.28, h.z);
     m.rotate(rotateAngle * 0.45, 0, 1, 0);
@@ -1190,7 +1190,7 @@ function makeHazardMatrix(h){
     return m;
 }
 
-function getMovingHazardPosition(h){
+function getMovingHazardPosition(h) {
     var offset = Math.sin(performance.now() * 0.001 * h.speed + h.phase) * h.range;
     return {
         x: h.baseX + (h.axis === "x" ? offset : 0),
@@ -1198,7 +1198,7 @@ function getMovingHazardPosition(h){
     };
 }
 
-function makeMovingHazardMatrix(h){
+function makeMovingHazardMatrix(h) {
     var p = getMovingHazardPosition(h);
     var m = new Matrix4();
     m.setTranslate(p.x, 0.62, p.z);
@@ -1206,14 +1206,14 @@ function makeMovingHazardMatrix(h){
     return m;
 }
 
-function makePortalBaseMatrix(){
+function makePortalBaseMatrix() {
     var m = new Matrix4();
     m.setTranslate(portal.x, 0.08, portal.z);
     m.scale(1.25, 0.16, 1.25);
     return m;
 }
 
-function makePortalSphereMatrix(){
+function makePortalSphereMatrix() {
     var m = new Matrix4();
     m.setTranslate(portal.x, portal.y, portal.z);
     m.rotate(rotateAngle, 0, 1, 0);
@@ -1221,9 +1221,9 @@ function makePortalSphereMatrix(){
     return m;
 }
 
-function getCamera(){
+function getCamera() {
     var dir = getLookDirection();
-    if(cameraMode === "first"){
+    if (cameraMode === "first") {
         return {
             x: player.x,
             y: 0.9 + player.y,
@@ -1245,7 +1245,7 @@ function getCamera(){
     };
 }
 
-function getLookDirection(){
+function getLookDirection() {
     var yaw = cameraYaw * Math.PI / 180.0;
     var pitch = player.pitch * Math.PI / 180.0;
     var x = Math.sin(yaw) * Math.cos(pitch);
@@ -1254,26 +1254,26 @@ function getLookDirection(){
     return normalize3([x, y, z]);
 }
 
-function getFlatForward(){
+function getFlatForward() {
     var yaw = cameraYaw * Math.PI / 180.0;
     return normalize3([Math.sin(yaw), 0, Math.cos(yaw)]);
 }
 
-function makeViewProjection(camera, aspect, fov, near, far){
+function makeViewProjection(camera, aspect, fov, near, far) {
     var vp = new Matrix4();
     vp.setPerspective(fov, aspect, near, far);
     vp.lookAt(camera.x, camera.y, camera.z, camera.lx, camera.ly, camera.lz, 0, 1, 0);
     return vp;
 }
 
-function makeLightViewProjection(){
+function makeLightViewProjection() {
     var m = new Matrix4();
     m.setPerspective(80, 1, 1, 70);
     m.lookAt(light.x, light.y, light.z, 0, 0, -2.0, 0, 1, 0);
     return m;
 }
 
-function createScreenQuad(){
+function createScreenQuad() {
     var quad = [
         -1, -1, 1, 1, -1, 1, -1, 1, 1,
         -1, 1, 1, 1, -1, 1, 1, 1, 1
@@ -1281,7 +1281,7 @@ function createScreenQuad(){
     return [initVertexBufferForLaterUse(gl, quad, null, null)];
 }
 
-function createGroundPlane(){
+function createGroundPlane() {
     var width = arenaWidth;
     var length = arenaLength;
     var y = 0;
@@ -1300,7 +1300,7 @@ function createGroundPlane(){
     return [initVertexBufferForLaterUse(gl, vertices, normals, texCoords)];
 }
 
-function createPlatformTexture(gl){
+function createPlatformTexture(gl) {
     var c = document.createElement("canvas");
     c.width = 256;
     c.height = 256;
@@ -1318,7 +1318,7 @@ function createPlatformTexture(gl){
     ctx.fillRect(124, 0, 8, 256);
     ctx.strokeStyle = "rgba(130, 230, 255, 0.34)";
     ctx.lineWidth = 1;
-    for(var i = 0; i < 9; i++){
+    for (var i = 0; i < 9; i++) {
         var y = i * 32;
         ctx.beginPath();
         ctx.moveTo(0, y);
@@ -1338,7 +1338,7 @@ function createPlatformTexture(gl){
     return texture;
 }
 
-function initProceduralCubeTexture(gl){
+function initProceduralCubeTexture(gl) {
     var texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     var targets = [
@@ -1349,7 +1349,7 @@ function initProceduralCubeTexture(gl){
         gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
         gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
     ];
-    for(var i = 0; i < targets.length; i++){
+    for (var i = 0; i < targets.length; i++) {
         gl.texImage2D(targets[i], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, createSkyFace(i));
     }
     gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
@@ -1360,7 +1360,7 @@ function initProceduralCubeTexture(gl){
     return texture;
 }
 
-function createSkyFace(faceIndex){
+function createSkyFace(faceIndex) {
     var c = document.createElement("canvas");
     c.width = 512;
     c.height = 512;
@@ -1375,7 +1375,7 @@ function createSkyFace(faceIndex){
 
     ctx.strokeStyle = "rgba(95, 210, 255, 0.12)";
     ctx.lineWidth = 1;
-    for(var i = -512; i < 1024; i += 64){
+    for (var i = -512; i < 1024; i += 64) {
         ctx.beginPath();
         ctx.moveTo(i, 512);
         ctx.lineTo(i + 340, 0);
@@ -1383,7 +1383,7 @@ function createSkyFace(faceIndex){
     }
 
     var stars = 70;
-    for(var s = 0; s < stars; s++){
+    for (var s = 0; s < stars; s++) {
         var x = pseudoRandom(faceIndex * 200 + s * 17) * 512;
         var y = pseudoRandom(faceIndex * 300 + s * 31) * 360;
         var r = 0.8 + pseudoRandom(faceIndex * 400 + s * 43) * 1.4;
@@ -1400,12 +1400,12 @@ function createSkyFace(faceIndex){
     return c;
 }
 
-function pseudoRandom(seed){
+function pseudoRandom(seed) {
     var x = Math.sin(seed * 12.9898) * 43758.5453;
     return x - Math.floor(x);
 }
 
-function init2DFrameBuffer(gl, width, height){
+function init2DFrameBuffer(gl, width, height) {
     var texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -1425,14 +1425,14 @@ function init2DFrameBuffer(gl, width, height){
     return fbo;
 }
 
-function initCubeFrameBuffer(gl, size){
+function initCubeFrameBuffer(gl, size) {
     var texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    for(var i = 0; i < 6; i++){
+    for (var i = 0; i < 6; i++) {
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     }
     var depthBuffer = gl.createRenderbuffer();
@@ -1446,12 +1446,12 @@ function initCubeFrameBuffer(gl, size){
     return fbo;
 }
 
-async function loadOBJtoCreateVBO(objFile){
+async function loadOBJtoCreateVBO(objFile) {
     var objComponents = [];
     var response = await fetch(objFile);
     var text = await response.text();
     var obj = parseOBJ(text);
-    for(var i = 0; i < obj.geometries.length; i++){
+    for (var i = 0; i < obj.geometries.length; i++) {
         objComponents.push(initVertexBufferForLaterUse(
             gl,
             obj.geometries[i].data.position,
@@ -1462,20 +1462,20 @@ async function loadOBJtoCreateVBO(objFile){
     return objComponents;
 }
 
-function initVertexBufferForLaterUse(gl, vertices, normals, texCoords){
+function initVertexBufferForLaterUse(gl, vertices, normals, texCoords) {
     var o = {};
     o.vertexBuffer = initArrayBufferForLaterUse(gl, new Float32Array(vertices), 3, gl.FLOAT);
-    if(normals){
+    if (normals) {
         o.normalBuffer = initArrayBufferForLaterUse(gl, new Float32Array(normals), 3, gl.FLOAT);
     }
-    if(texCoords){
+    if (texCoords) {
         o.texCoordBuffer = initArrayBufferForLaterUse(gl, new Float32Array(texCoords), 2, gl.FLOAT);
     }
     o.numVertices = vertices.length / 3;
     return o;
 }
 
-function initArrayBufferForLaterUse(gl, data, num, type){
+function initArrayBufferForLaterUse(gl, data, num, type) {
     var buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
@@ -1484,30 +1484,30 @@ function initArrayBufferForLaterUse(gl, data, num, type){
     return buffer;
 }
 
-function initAttributeVariable(gl, a_attribute, buffer){
+function initAttributeVariable(gl, a_attribute, buffer) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(a_attribute, buffer.num, buffer.type, false, 0, 0);
     gl.enableVertexAttribArray(a_attribute);
 }
 
-function compileShader(gl, vShaderText, fShaderText){
+function compileShader(gl, vShaderText, fShaderText) {
     var vertexShader = gl.createShader(gl.VERTEX_SHADER);
     var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(vertexShader, vShaderText);
     gl.shaderSource(fragmentShader, fShaderText);
     gl.compileShader(vertexShader);
-    if(!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)){
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
         console.log(gl.getShaderInfoLog(vertexShader));
     }
     gl.compileShader(fragmentShader);
-    if(!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)){
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
         console.log(gl.getShaderInfoLog(fragmentShader));
     }
     var program = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
-    if(!gl.getProgramParameter(program, gl.LINK_STATUS)){
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         alert(gl.getProgramInfoLog(program));
     }
     return program;
@@ -1525,7 +1525,7 @@ function parseOBJ(text) {
     let groups = ["default"];
     let material = "default";
     let object = "default";
-    const noop = () => {};
+    const noop = () => { };
 
     function newGeometry() {
         if (geometry && geometry.data.position.length) {
@@ -1596,41 +1596,41 @@ function parseOBJ(text) {
     return { geometries: geometries, materialLibs: materialLibs };
 }
 
-function keyDown(ev){
+function keyDown(ev) {
     var key = ev.key.toLowerCase();
     keys[key] = true;
-    if(["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright", " "].indexOf(key) >= 0){
+    if (["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright", " "].indexOf(key) >= 0) {
         ev.preventDefault();
     }
-    if(key === "v"){
+    if (key === "v") {
         cameraMode = cameraMode === "third" ? "first" : "third";
     }
-    if(key === "l" && game.state === "start"){
+    if (key === "l" && game.state === "start") {
         setLanguage(language === "zh" ? "en" : "zh");
     }
-    if(key === "enter" && game.state === "start"){
+    if (key === "enter" && game.state === "start") {
         startGame();
     }
-    if(key === "r"){
+    if (key === "r") {
         restartGame();
     }
 }
 
-function keyUp(ev){
+function keyUp(ev) {
     keys[ev.key.toLowerCase()] = false;
 }
 
-function mouseDown(ev){
+function mouseDown(ev) {
     var rect = ev.target.getBoundingClientRect();
-    if(rect.left <= ev.clientX && ev.clientX < rect.right && rect.top <= ev.clientY && ev.clientY < rect.bottom){
+    if (rect.left <= ev.clientX && ev.clientX < rect.right && rect.top <= ev.clientY && ev.clientY < rect.bottom) {
         mouseLastX = ev.clientX;
         mouseLastY = ev.clientY;
         mouseDragging = true;
     }
 }
 
-function mouseMove(ev){
-    if(mouseDragging){
+function mouseMove(ev) {
+    if (mouseDragging) {
         var dx = ev.clientX - mouseLastX;
         var dy = ev.clientY - mouseLastY;
         cameraYaw += dx * 0.22;
@@ -1640,36 +1640,36 @@ function mouseMove(ev){
     mouseLastY = ev.clientY;
 }
 
-function mouseUp(){
+function mouseUp() {
     mouseDragging = false;
 }
 
-function distance2D(x1, z1, x2, z2){
+function distance2D(x1, z1, x2, z2) {
     var dx = x1 - x2;
     var dz = z1 - z2;
     return Math.sqrt(dx * dx + dz * dz);
 }
 
-function normalize3(v){
+function normalize3(v) {
     var len = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-    if(len <= 0.00001){
+    if (len <= 0.00001) {
         return [0, 0, -1];
     }
     return [v[0] / len, v[1] / len, v[2] / len];
 }
 
-function clamp(v, min, max){
+function clamp(v, min, max) {
     return Math.max(min, Math.min(max, v));
 }
 
-function randomRange(min, max){
+function randomRange(min, max) {
     return min + Math.random() * (max - min);
 }
 
-function resizeCanvasToDisplaySize(){
+function resizeCanvasToDisplaySize() {
     var width = Math.max(1, Math.floor(canvas.clientWidth * window.devicePixelRatio));
     var height = Math.max(1, Math.floor(canvas.clientHeight * window.devicePixelRatio));
-    if(canvas.width !== width || canvas.height !== height){
+    if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
     }
