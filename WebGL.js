@@ -253,8 +253,8 @@ var player = {
 };
 var game = {
     state: "start",
-    totalTime: 190,
-    timeLeft: 190,
+    totalTime: 60,
+    timeLeft: 60,
     collected: 0,
     messageTimer: 0,
     feedback: ""
