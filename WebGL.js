@@ -529,8 +529,8 @@ function movePlayer(dt){
     pushOutOfBlockers();
     pushOutOfJumpBarriers();
 
-    player.x = clamp(player.x, -arenaWidth + 0.65, arenaWidth - 0.65);
-    player.z = clamp(player.z, -arenaLength + 0.75, arenaLength - 0.75);
+    player.x = clamp(player.x, -arenaWidth + 0.1, arenaWidth - 0.1);
+    player.z = clamp(player.z, -arenaLength + 0.1, arenaLength - 0.1);
 }
 
 function pushOutOfBlockers(){
@@ -618,8 +618,8 @@ function checkMovingHazards(){
     for(var i = 0; i < movingHazards.length; i++){
         var h = getMovingHazardPosition(movingHazards[i]);
         var hitHorizontally =
-            Math.abs(player.x - h.x) < movingHazards[i].sx + player.radius &&
-            Math.abs(player.z - h.z) < movingHazards[i].sz + player.radius;
+            Math.abs(player.x - h.x) < movingHazards[i].sx * 0.72 &&
+            Math.abs(player.z - h.z) < movingHazards[i].sz * 0.55;
         if(hitHorizontally && player.y < 0.72){
             player.hp -= 1;
             player.invincible = 1.2;
@@ -644,8 +644,8 @@ function checkFloorHazards(){
         if(getFloorHazardState(tile) !== "danger"){
             continue;
         }
-        if(Math.abs(player.x - tile.x) < tile.sx + player.radius &&
-           Math.abs(player.z - tile.z) < tile.sz + player.radius){
+        if(Math.abs(player.x - tile.x) < tile.sx * 0.96 &&
+           Math.abs(player.z - tile.z) < tile.sz * 0.96){
             player.hp -= 1;
             player.invincible = 1.2;
             game.feedback = text().floorFeedback;
