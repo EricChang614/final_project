@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Sky Crystal Escape</title>
+    <style>
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0d1117;
+            color: #eef4ff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .game {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: #000;
+        }
+        h1 {
+            margin: 0 0 14px;
+            font-size: 42px;
+            letter-spacing: 0;
+        }
+        p {
+            margin: 8px 0;
+            font-size: 16px;
+            line-height: 1.55;
+        }
+        .hud {
+            position: absolute;
+            left: 18px;
+            top: 18px;
+            padding: 12px 14px;
+            min-width: 250px;
+            color: #ffffff;
+            background: rgba(13, 17, 23, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.5;
+            pointer-events: none;
+        }
+        .message {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #ffffff;
+            background: radial-gradient(circle at center, rgba(22, 42, 70, 0.82), rgba(5, 8, 14, 0.9));
+            pointer-events: auto;
+        }
+        .message-card {
+            width: min(680px, calc(100vw - 44px));
+            padding: 28px;
+            box-sizing: border-box;
+            background: rgba(10, 16, 28, 0.78);
+            border: 1px solid rgba(139, 215, 255, 0.32);
+            border-radius: 8px;
+        }
+        .message strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 44px;
+            letter-spacing: 0;
+        }
+        .message .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin: 18px 0;
+            text-align: left;
+        }
+        .message .item {
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.45;
+        }
+        .message .prompt {
+            margin-top: 16px;
+            color: #8bd7ff;
+            font-weight: 700;
+        }
+        .language-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 16px 0 8px;
+            flex-wrap: wrap;
+        }
+        .language-row button {
+            min-width: 112px;
+            padding: 9px 14px;
+            color: #eef4ff;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(139, 215, 255, 0.35);
+            border-radius: 8px;
+            font: inherit;
+            cursor: pointer;
+        }
+        .language-row button.active {
+            color: #061018;
+            background: #8bd7ff;
+            border-color: #d9f5ff;
+            font-weight: 700;
+        }
+        .flash {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            background: rgba(255, 42, 72, 0.42);
+            transition: opacity 120ms ease-out;
+        }
+        @media (max-width: 720px) {
+            h1 {
+                font-size: 30px;
+            }
+            .message .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body onload="main()">
+    <main class="game">
+        <canvas id="webgl" width="1280" height="720">
+            Please use a browser that supports canvas.
+        </canvas>
+        <div id="hud" class="hud"></div>
+        <div id="message" class="message"></div>
+        <div id="damageFlash" class="flash"></div>
+    </main>
+    <script src="cuon-matrix.js"></script>
+    <script src="WebGL.js"></script>
+</body>
+</html>
