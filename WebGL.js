@@ -558,7 +558,8 @@ function pushOutOfJumpBarriers(){
     }
     for(var i = 0; i < jumpBarriers.length; i++){
         var b = jumpBarriers[i];
-        var halfX = b.sx + player.radius;
+        var effectiveHalfWidth = Math.max(b.sx, arenaWidth + 0.06);
+        var halfX = effectiveHalfWidth + player.radius;
         var halfZ = b.sz + player.radius;
         var dx = player.x - b.x;
         var dz = player.z - b.z;
@@ -1153,7 +1154,8 @@ function makeBlockerMatrix(b){
 function makeJumpBarrierMatrix(b){
     var m = new Matrix4();
     m.setTranslate(b.x, 0.24, b.z);
-    m.scale(b.sx, 0.48, b.sz);
+    var effectiveHalfWidth = Math.max(b.sx, arenaWidth + 0.06);
+    m.scale(effectiveHalfWidth, 0.48, b.sz);
     return m;
 }
 
