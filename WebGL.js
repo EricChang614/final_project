@@ -142,7 +142,7 @@ var gl, canvas;
 var litProgram, reflectProgram, envProgram, shadowProgram;
 var quadObj, groundObj, cubeObj, sphereObj, playerObj;
 var cubeMapTex, dynamicCubeFbo, shadowFbo;
-var groundTexture;
+var groundTexture, playerTextures;
 var hudEl, messageEl, flashEl;
 var lastTime = 0;
 var gameStartedAt = 0;
@@ -344,6 +344,7 @@ async function main() {
 
     cubeMapTex = initProceduralCubeTexture(gl);
     groundTexture = createPlatformTexture(gl);
+    playerTextures = createSonicTextures(gl);
     shadowFbo = init2DFrameBuffer(gl, shadowSize, shadowSize);
     dynamicCubeFbo = initCubeFrameBuffer(gl, cubeSize);
 
@@ -965,11 +966,10 @@ function drawGround(vp, camera, lightVP, useShadow) {
 
 function drawPlayer(vp, camera, lightVP, useShadow) {
     var blink = player.invincible > 0 && Math.floor(player.invincible * 12) % 2 === 0;
-    drawLitObject(playerObj, makePlayerMatrix(), vp, camera, lightVP, {
-        color: blink ? [1.0, 0.35, 0.35] : [0.25, 0.55, 1.0],
-        ka: 0.2, kd: 0.72, ks: 0.65, shininess: 28,
-        useShadow: useShadow
-    });
+    var model = makePlayerMatrix();
+    for (var i = 0; i < playerObj.length; i++) {
+        drawLitObject([playerObj[i]], model, vp, camera, lightVP, getSonicMaterial(playerObj[i].material, blink, useShadow));
+    }
 }
 
 function drawFloorHazards(vp, camera, lightVP, useShadow) {
@@ -1395,6 +1395,103 @@ function createPlatformTexture(gl) {
     return texture;
 }
 
+function createSonicTextures(gl) {
+    return {
+        blue: createSonicPartTexture(gl, "#0a55d8", "#37a9ff", "#05215f", "quills"),
+        tan: createSonicPartTexture(gl, "#f0b36f", "#ffe0ae", "#8b4e28", "grain"),
+        red: createSonicPartTexture(gl, "#d71932", "#ff596b", "#680713", "shoe"),
+        white: createSonicPartTexture(gl, "#eef6ff", "#ffffff", "#9fb4c9", "shine")
+    };
+}
+
+function createSonicPartTexture(gl, baseColor, highlightColor, shadowColor, pattern) {
+    var c = document.createElement("canvas");
+    c.width = 256;
+    c.height = 256;
+    var ctx = c.getContext("2d");
+    var base = ctx.createLinearGradient(0, 0, 256, 256);
+    base.addColorStop(0, highlightColor);
+    base.addColorStop(0.42, baseColor);
+    base.addColorStop(1, shadowColor);
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, 256, 256);
+
+    ctx.globalAlpha = 0.24;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = pattern === "quills" ? 8 : 5;
+    for (var i = -2; i < 11; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * 34, 0);
+        ctx.lineTo(i * 34 + (pattern === "quills" ? 112 : 56), 256);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    if (pattern === "quills") {
+        ctx.fillStyle = "rgba(2, 18, 68, 0.28)";
+        for (var q = 0; q < 5; q++) {
+            ctx.beginPath();
+            ctx.moveTo(24 + q * 52, 44);
+            ctx.lineTo(64 + q * 38, 142);
+            ctx.lineTo(10 + q * 50, 128);
+            ctx.closePath();
+            ctx.fill();
+        }
+    } else if (pattern === "shoe") {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fillRect(0, 98, 256, 26);
+        ctx.fillRect(22, 172, 212, 14);
+    } else if (pattern === "shine") {
+        ctx.fillStyle = "rgba(125, 180, 220, 0.28)";
+        ctx.fillRect(0, 0, 256, 18);
+        ctx.fillRect(0, 118, 256, 14);
+        ctx.fillRect(0, 236, 256, 20);
+    } else {
+        ctx.fillStyle = "rgba(112, 58, 26, 0.16)";
+        for (var g = 0; g < 12; g++) {
+            ctx.beginPath();
+            ctx.arc(20 + g * 21, 80 + Math.sin(g) * 24, 9, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.22)";
+    ctx.lineWidth = 2;
+    for (var y = 32; y < 256; y += 32) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(256, y + Math.sin(y) * 6);
+        ctx.stroke();
+    }
+
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    return texture;
+}
+
+function getSonicMaterial(materialName, blink, useShadow) {
+    var texture = playerTextures.blue;
+    if (materialName === "bab97353_dds") {
+        texture = playerTextures.tan;
+    } else if (materialName === "f1f6d3cb_dds") {
+        texture = playerTextures.red;
+    } else if (materialName === "d1419efe_dds") {
+        texture = playerTextures.white;
+    }
+    return {
+        color: blink ? [1.0, 0.35, 0.35] : [1.0, 1.0, 1.0],
+        ka: 0.22, kd: 0.72, ks: 0.68, shininess: 30,
+        texture: texture,
+        useShadow: useShadow
+    };
+}
+
 function initProceduralCubeTexture(gl) {
     var texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
@@ -1513,14 +1610,21 @@ async function loadOBJtoCreateVBO(objFile) {
             gl,
             obj.geometries[i].data.position,
             obj.geometries[i].data.normal,
-            obj.geometries[i].data.texcoord
+            obj.geometries[i].data.texcoord,
+            {
+                material: obj.geometries[i].material,
+                object: obj.geometries[i].object
+            }
         ));
     }
     return objComponents;
 }
 
-function initVertexBufferForLaterUse(gl, vertices, normals, texCoords) {
+function initVertexBufferForLaterUse(gl, vertices, normals, texCoords, metadata) {
     var o = {};
+    metadata = metadata || {};
+    o.material = metadata.material || "default";
+    o.object = metadata.object || "default";
     o.vertexBuffer = initArrayBufferForLaterUse(gl, new Float32Array(vertices), 3, gl.FLOAT);
     if (normals) {
         o.normalBuffer = initArrayBufferForLaterUse(gl, new Float32Array(normals), 3, gl.FLOAT);

@@ -35,10 +35,10 @@ You lose if HP reaches 0 or the timer reaches 0. Red hazard blocks, moving laser
 
 ## Graphics Requirements Covered
 
-- Player is a loaded `.obj` model: `sonic.obj`
+- Player is a loaded and texture-mapped `.obj` model: `sonic.obj`
 - Other 3D `.obj` objects: `sphere.obj`, `cube.obj`
 - Point light with Phong local illumination
-- Texture-mapped floating platform
+- Texture-mapped Sonic player and floating platform
 - Environment cube map skybox
 - Cube map reflection on the portal
 - Shadow mapping
